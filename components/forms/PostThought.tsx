@@ -16,10 +16,12 @@ import { Textarea } from "../ui/textarea";
 import { usePathname, useRouter } from "next/navigation";
 import { ThoughtValidation } from "@/lib/validation/thought";
 import { createThought } from "@/lib/actions/thought.actions";
+import { useOrganization } from "@clerk/nextjs";
 
 const PostThought = ({ userId }: { userId: string }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const { organization } = useOrganization();
   const form = useForm({
     resolver: zodResolver(ThoughtValidation),
     defaultValues: {
@@ -32,7 +34,7 @@ const PostThought = ({ userId }: { userId: string }) => {
     await createThought({
       text: values.thought,
       author: userId,
-      communityId: null,
+      communityId: organization ? organization.id : null,
       path: pathname,
     });
 

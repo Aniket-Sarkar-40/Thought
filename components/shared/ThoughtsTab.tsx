@@ -1,6 +1,7 @@
 import { fetchProfileThought } from "@/lib/actions/user.actions";
 import { redirect } from "next/navigation";
 import ThoughtCard from "../cards/ThoughtCard";
+import { fetchCommunityPosts } from "@/lib/actions/community.actions";
 
 interface Props {
   currentUserId: string;
@@ -13,7 +14,13 @@ const ThoughtsTab = async ({
   accountId,
   accountType,
 }: Props) => {
-  const profileThought = await fetchProfileThought(accountId);
+  let profileThought: any;
+
+  if (accountType === "Community") {
+    profileThought = await fetchCommunityPosts(accountId);
+  } else {
+    profileThought = await fetchProfileThought(accountId);
+  }
 
   if (!profileThought) redirect("/");
 

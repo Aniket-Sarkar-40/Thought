@@ -5,6 +5,7 @@ import User from "../models/user.model";
 import { connectToDB } from "../mongoose";
 import Thought from "../models/thought.model";
 import { FilterQuery, SortOrder } from "mongoose";
+import Community from "../models/community.model";
 
 interface Paramtype {
   userId: string;
@@ -46,15 +47,46 @@ export async function updateUser({
   }
 }
 
+export async function fetchUserPosts(userId: string) {
+  try {
+    connectToDB();
+
+    // Find all Thoughts authored by the user with the given userId
+    const thought = await User.findOne({ id: userId }).populate({
+      path: "thought",
+      model: Thought,
+      populate: [
+        {
+          path: "community",
+          model: Community,
+          select: "name id image _id", // Select the "name" and "_id" fields from the "Community" model
+        },
+        {
+          path: "children",
+          model: Thought,
+          populate: {
+            path: "author",
+            model: User,
+            select: "name image id", // Select the "name" and "_id" fields from the "User" model
+          },
+        },
+      ],
+    });
+    return thought;
+  } catch (error) {
+    console.error("Error fetching user Thoughts:", error);
+    throw error;
+  }
+}
+
 export async function fetchUser(userId: string) {
   try {
     connectToDB();
 
-    return await User.findOne({ id: userId });
-    //   .populate({
-    //   path: "communities",
-    //   model: Community,
-    // });
+    return await User.findOne({ id: userId }).populate({
+      path: "communities",
+      model: Community,
+    });
   } catch (error: any) {
     throw new Error(`Failed to fetch user: ${error.message}`);
   }
