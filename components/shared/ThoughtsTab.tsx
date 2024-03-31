@@ -46,7 +46,15 @@ const ThoughtsTab = async ({
                   id: thought.author.id,
                 }
           }
-          community={thought.community}
+          community={
+            accountType === "Community"
+              ? {
+                  id: profileThought.id,
+                  image: profileThought.image,
+                  name: profileThought.name,
+                }
+              : thought.community
+          }
           createdAt={thought.createdAt}
           comments={thought.children}
         />
